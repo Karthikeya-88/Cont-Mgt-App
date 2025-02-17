@@ -4,15 +4,14 @@ const app = express();
 const path = require("path");
 const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
-const { request } = require("http");
-const databasePath = path.join(__dirname, "contacts.db");
+const databasePath = path.join(__dirname, "contactDetails.db");
 app.use(cors());
-app.use(express.json);
+app.use(express.json());
 let db;
 
 const initializeDbAndServer = async () => {
   try {
-    db = open({
+    db = await open({
       filename: databasePath,
       driver: sqlite3.Database,
     });
@@ -22,6 +21,7 @@ const initializeDbAndServer = async () => {
     });
   } catch (e) {
     console.log(`DB Error: ${e.message}`);
+    process.exit(1);
   }
 };
 initializeDbAndServer();
@@ -38,21 +38,21 @@ const convertContactsDBToResponseObj = (dbObject) => {
 };
 
 app.get("/ct/", async (request, response) => {
-  const getContacts = `SELECT * FROM contacts;`;
+  const getContacts = `SELECT * FROM contactDetails;`;
   const contactsArr = await db.all(getContacts);
-  response.send(convertContactsDBToResponseObj(contactsArr));
+  response.send(contactsArr.map(convertContactsDBToResponseObj));
 });
 
 app.get("/ct/:id/", async (request, response) => {
   const { id } = request.params;
-  const getContact = `SELECT * FROM contacts WHERE id = ${id};`;
+  const getContact = `SELECT * FROM contactDetails WHERE id = ${id};`;
   const contactsArr = await db.get(getContact);
   response.send(convertContactsDBToResponseObj(contactsArr));
 });
 
 app.post("/ct/", async (request, response) => {
   const { id, name, email, number, address, createdAt } = request.body;
-  const postContactsQuery = `INSERT INTO contacts(id, name, email, number, address, created_at) VALUES (${id}, '${name}', '${email}', ${number}, '${address}', '${createdAt}');`;
+  const postContactsQuery = `INSERT INTO contactDetails(id, name, email, number, address, created_at) VALUES (${id}, '${name}', '${email}', '${number}', '${address}', '${createdAt}');`;
   await db.run(postContactsQuery);
   response.send("Contact Created Successfully");
 });
@@ -60,14 +60,16 @@ app.post("/ct/", async (request, response) => {
 app.put("/ct/:id", async (request, response) => {
   const { name, email, number, address, createdAt } = request.body;
   const { id } = request.params;
-  const updateContactsQuery = `UPDATE contacts SET name = '${name}', email = '${email}', number = ${number}, address = '${address}', created_at = '${createdAt}' WHERE id = ${id}`;
+  const updateContactsQuery = `UPDATE contactDetails SET name = '${name}', email = '${email}', number = ${number}, address = '${address}', created_at = '${createdAt}' WHERE id = ${id}`;
   await db.run(updateContactsQuery);
   response.send("Contact Updated");
 });
 
 app.delete("/ct/:id", async (request, response) => {
   const { id } = request.params;
-  const deleteContact = `DELETE FROM contacts WHERE id = ${id};`;
+  const deleteContact = `DELETE FROM contactDetails WHERE id = ${id};`;
   await db.run(deleteContact);
   response.send("Contact Deleted");
 });
+
+module.exports = app;
