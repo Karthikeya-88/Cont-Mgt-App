@@ -1,0 +1,11 @@
+###
+GET http://localhost/3080/ct
+
+###
+GET http://localhost/3080/ct/2
+
+###
+POST http://localhost/3080/ct
+
+###
+DELETE  http://localhost/3080/ct/2
