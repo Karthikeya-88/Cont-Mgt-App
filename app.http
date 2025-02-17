@@ -1,11 +1,14 @@
 ###
-GET http://localhost/3080/ct
+GET http://localhost/3200/ct
 
 ###
-GET http://localhost/3080/ct/2
+GET http://localhost/3200/ct/2
 
 ###
-POST http://localhost/3080/ct
+POST http://localhost/3200/ct
 
 ###
-DELETE  http://localhost/3080/ct/2
+PUT http://localhost/3200/ct/2
+
+###
+DELETE http://localhost/3200/ct/2

@@ -5,7 +5,7 @@ const path = require("path");
 const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 const databasePath = path.join(__dirname, "contactDetails.db");
-app.use(cors());
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 let db;
 
@@ -15,7 +15,7 @@ const initializeDbAndServer = async () => {
       filename: databasePath,
       driver: sqlite3.Database,
     });
-    const port = process.env.PORT || 3080;
+    const port = process.env.PORT || 3200;
     app.listen(port, () => {
       console.log(`Server Running at ${port}`);
     });
@@ -45,30 +45,46 @@ app.get("/ct/", async (request, response) => {
 
 app.get("/ct/:id/", async (request, response) => {
   const { id } = request.params;
-  const getContact = `SELECT * FROM contactDetails WHERE id = ${id};`;
-  const contactsArr = await db.get(getContact);
+  const getContact = `SELECT * FROM contactDetails WHERE id = ?;`;
+  const contactsArr = await db.get(getContact, [id]);
   response.send(convertContactsDBToResponseObj(contactsArr));
 });
 
 app.post("/ct/", async (request, response) => {
   const { id, name, email, number, address, createdAt } = request.body;
-  const postContactsQuery = `INSERT INTO contactDetails(id, name, email, number, address, created_at) VALUES (${id}, '${name}', '${email}', '${number}', '${address}', '${createdAt}');`;
-  await db.run(postContactsQuery);
+  const postContactsQuery = `INSERT INTO contactDetails(id, name, email, number, address, created_at) VALUES (?, ?, ?, ?, ?, ?);`;
+  await db.run(postContactsQuery, [
+    id,
+    name,
+    email,
+    number,
+    address,
+    createdAt,
+  ]);
   response.send("Contact Created Successfully");
 });
 
 app.put("/ct/:id", async (request, response) => {
   const { name, email, number, address, createdAt } = request.body;
   const { id } = request.params;
-  const updateContactsQuery = `UPDATE contactDetails SET name = '${name}', email = '${email}', number = ${number}, address = '${address}', created_at = '${createdAt}' WHERE id = ${id}`;
-  await db.run(updateContactsQuery);
+  const updateContactsQuery = `UPDATE contactDetails 
+  SET name = ?, email = ?, number = ?, address = ?, created_at = ? 
+  WHERE id = ?;`;
+  await db.run(updateContactsQuery, [
+    name,
+    email,
+    number,
+    address,
+    createdAt,
+    id,
+  ]);
   response.send("Contact Updated");
 });
 
 app.delete("/ct/:id", async (request, response) => {
   const { id } = request.params;
-  const deleteContact = `DELETE FROM contactDetails WHERE id = ${id};`;
-  await db.run(deleteContact);
+  const deleteContact = `DELETE FROM contactDetails WHERE id = ?;`;
+  await db.run(deleteContact, [id]);
   response.send("Contact Deleted");
 });
 
