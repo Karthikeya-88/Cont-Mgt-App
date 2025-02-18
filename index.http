@@ -1,14 +1,14 @@
 ###
-GET http://localhost/3200/ct
+GET http://localhost:8000/contacts
 
 ###
-GET http://localhost/3200/ct/2
+GET http://localhost:8000/contacts/2
 
 ###
-POST http://localhost/3200/ct
+POST http://localhost:8000/contacts
 
 ###
-PUT http://localhost/3200/ct/2
+PUT http://localhost:8000/contacts/2
 
 ###
-DELETE http://localhost/3200/ct/2
+DELETE http://localhost:8000/contacts/2

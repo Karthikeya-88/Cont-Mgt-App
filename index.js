@@ -5,7 +5,7 @@ const path = require("path");
 const { open } = require("sqlite");
 const sqlite3 = require("sqlite3");
 const databasePath = path.join(__dirname, "contactDetails.db");
-app.use(cors({ origin: "*" }));
+app.use(cors());
 app.use(express.json());
 let db;
 
@@ -15,7 +15,7 @@ const initializeDbAndServer = async () => {
       filename: databasePath,
       driver: sqlite3.Database,
     });
-    const port = process.env.PORT || 3200;
+    const port = process.env.PORT || 8000;
     app.listen(port, () => {
       console.log(`Server Running at ${port}`);
     });
@@ -37,7 +37,7 @@ const convertContactsDBToResponseObj = (dbObject) => {
   };
 };
 
-app.get("/ct/", async (request, response) => {
+app.get("/contacts/", async (request, response) => {
   try {
     const getContacts = `SELECT * FROM contactDetails;`;
     const contactsArr = await db.all(getContacts);
@@ -47,7 +47,7 @@ app.get("/ct/", async (request, response) => {
   }
 });
 
-app.get("/ct/:id/", async (request, response) => {
+app.get("/contacts/:id/", async (request, response) => {
   try {
     const { id } = request.params;
     const getContact = `SELECT * FROM contactDetails WHERE id = ?;`;
@@ -63,7 +63,7 @@ app.get("/ct/:id/", async (request, response) => {
   }
 });
 
-app.post("/ct/", async (request, response) => {
+app.post("/contacts/", async (request, response) => {
   try {
     const { name, email, number, address } = request.body;
 
@@ -82,7 +82,7 @@ app.post("/ct/", async (request, response) => {
   }
 });
 
-app.put("/ct/:id", async (request, response) => {
+app.put("/contacts/:id", async (request, response) => {
   try {
     const { id } = request.params;
     const { name, email, number, address } = request.body;
@@ -103,7 +103,7 @@ app.put("/ct/:id", async (request, response) => {
   }
 });
 
-app.delete("/ct/:id", async (request, response) => {
+app.delete("/contacts/:id", async (request, response) => {
   try {
     const { id } = request.params;
     const deleteContact = `DELETE FROM contactDetails WHERE id = ?;`;
@@ -113,5 +113,3 @@ app.delete("/ct/:id", async (request, response) => {
     response.status(500).json({ error: "Failed to delete contact" });
   }
 });
-
-module.exports = app;
